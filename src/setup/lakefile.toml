@@ -1,0 +1,13 @@
+name = "lean-mathematics"
+defaultTargets = ["LeanMathematics"]
+
+# ── 依赖: mathlib4 (git 钉扎 commit, 可移植 — 供 CI 与外部构建) ──────
+# 本地离线开发: 如需避免重新下载, 可临时改 `git` 为本地克隆的 file:// URL,
+# 提交前改回本 git 形式。
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "274ed6d67d9b226c557813b9ce437574cccdce11"
+
+[[lean_lib]]
+name = "LeanMathematics"
