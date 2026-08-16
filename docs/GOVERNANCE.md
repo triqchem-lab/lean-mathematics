@@ -18,13 +18,13 @@
 | 1 | 分支保护（branch protection） | `main` 只进 PR；要求 status checks + review 通过 |
 | 2 | `CODEOWNERS` | 核心层（Base/Structology/Algebra/Coupling/HoTT/Physics/Constitution）改动必须 owner review |
 | 3 | `direction-check`（workflow） | 自动拦截硬违反：postulate/axiom/sorry/admit + 浮点 |
-| 4 | `auto-merge`（label 触发） | owner 加 `direction-consistent` label 后，CI 全绿即自动 squash 合并 |
+| 4 | `auto-merge`（**暂关闭**） | 默认手动 merge；auto-merge workflow 已改为 `workflow_dispatch`，待项目受广泛关注后改回 label 触发 |
 
 ## Label 语义
 
 | Label | 含义 | 谁打 |
 |---|---|---|
-| `direction-consistent` | 方向一致，授权自动合并 | owner（review 通过后） |
+| `direction-consistent` | 方向一致（标记；当前**不**自动合并） | owner（review 通过后） |
 | `needs-review` | 需人工审查（默认状态） | owner / 自动 |
 | `direction-rejected` | 方向不一致，拒绝 | owner |
 
@@ -44,13 +44,17 @@
 - 破坏 144/46 全息 π 不约分、十二律长度表静态
 - 非离散的朴素重编码（离散第一性本体只在 Agda 原生，Lean 侧需先开发插件）
 
-## 自动合并流程
+## 合并流程（当前：手动）
+
+> **自动合并暂关闭**——项目尚未达到广泛关注，owner 手动 merge 即可，无需自动合并的便利。
 
 1. 贡献者开 PR（方向一致的贡献）；
-2. CI 跑 `direction-check` + `formal-test`（证明/数值/结构/风格）；
-3. owner review：方向一致 → 加 `direction-consistent` label；
-4. `auto-merge` workflow 触发 `gh pr merge --auto`；
-5. 所有 required checks 绿后自动 squash 合并。
+2. CI 跑 `direction-check` + `formal-test` + `pr-body-check`（证明/数值/结构/风格/声明）；
+3. owner review：方向一致 → 加 `direction-consistent` label（仅作标记）；
+4. 所有 required checks 绿 + owner approve 后，owner **手动** merge。
 
-> 控制权保证：只有能打 label 的成员（owner）能触发第 3 步；`direction-check`
-> 在合并前拦截一切硬违反；核心层改动还额外受 `CODEOWNERS` review 约束。
+> 未来重新开启自动合并：把 `auto-merge.yml` 的 `on` 从 `workflow_dispatch`
+> 改回 `pull_request_target: types: [labeled]`，则第 3 步加 label 即自动 approve + auto-merge。
+>
+> 控制权保证：只有能打 label 的成员（owner）能触发；`direction-check` / `pr-body-check`
+> 在合并前拦截一切硬违反与未勾选声明；核心层改动还额外受 `CODEOWNERS` review 约束。

@@ -1,11 +1,15 @@
 name: Auto-merge on direction approval
 
-# owner 判定 PR 方向一致后, 加 `direction-consistent` label 触发自动合并。
-# 合并仍受分支保护约束: required checks (含 direction-check) 全绿才真正合并。
-# 控制权: 只有能打 label 的成员 (owner) 能触发, 方向不一致的 PR 不会被打此 label。
+# ⚠️ 暂关闭自动合并: 项目尚未达到广泛关注, owner 手动 merge 即可。
+# 保留机制但不自动触发 — 待需要时, 把 `on` 从 workflow_dispatch 改回
+# pull_request_target: types: [labeled] 即可重新开启 label 自动合并。
 on:
-  pull_request_target:
-    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR 号 (手动触发 auto-merge)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -13,14 +17,13 @@ permissions:
 
 jobs:
   auto-merge:
-    if: github.event.label.name == 'direction-consistent'
     runs-on: ubuntu-latest
     steps:
       - name: Approve and enable auto-merge (squash)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR="${{ github.event.pull_request.number }}"
-          # 加 direction-consistent label 即视为 owner 方向批准
+          PR="${{ inputs.pr_number }}"
+          # 手动触发时 approve + 开启 auto-merge (仍受分支保护 required checks 约束)
           gh pr review "$PR" --approve
           gh pr merge "$PR" --auto --squash --delete-branch
