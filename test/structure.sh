@@ -67,4 +67,36 @@ for f in $(find "$ROOT" -name '*.lean' 2>/dev/null | sort); do
 done
 [ $imports_bad -ne 0 ] && fail=1
 
+# 孤立文件闸: 每个 .lean (除 All.lean) 必须被 All.lean 传递 import。
+# 关闭可靠性洞 —— lake build 只编译被 import 的模块, 孤立 .lean 会被静默跳过。
+orphan_bad=0
+tmpd=$(mktemp -d)
+trap 'rm -rf "$tmpd"' EXIT
+# 全部模块名 (文件路径 → LeanMathematics.X.Y), 排除聚合器自身
+find "$ROOT" -name '*.lean' | sed "s#^$ROOT/##; s#\.lean\$##; s#/#.#g" | grep -v '^All$' | sed 's#^#LeanMathematics.#' | LC_ALL=C sort -u > "$tmpd/all.txt"
+# 从 All.lean 出发的传递 import 闭包 (BFS)
+grep '^import ' "$ROOT/All.lean" | sed 's/^import //' | tr ' ' '\n' | grep '^LeanMathematics\.' | LC_ALL=C sort -u > "$tmpd/queue"
+: > "$tmpd/seen"
+while [ -s "$tmpd/queue" ]; do
+  cp "$tmpd/queue" "$tmpd/current"
+  : > "$tmpd/queue"
+  while IFS= read -r m; do
+    grep -qx "$m" "$tmpd/seen" && continue
+    echo "$m" >> "$tmpd/seen"
+    tf="$ROOT/$(echo "$m" | tr '.' '/').lean"
+    if [ -f "$tf" ]; then
+      grep '^import ' "$tf" | sed 's/^import //' | tr ' ' '\n' | grep '^LeanMathematics\.' >> "$tmpd/queue"
+    fi
+  done < "$tmpd/current"
+  LC_ALL=C sort -u "$tmpd/queue" -o "$tmpd/queue"
+done
+LC_ALL=C sort -u "$tmpd/seen" -o "$tmpd/seen"
+orphans=$(comm -23 "$tmpd/all.txt" "$tmpd/seen")
+if [ -n "$orphans" ]; then
+  echo "ORPHAN MODULES (未被 All.lean import, lake build 会静默跳过):"
+  echo "$orphans" | sed 's/^/  - /'
+  orphan_bad=1
+fi
+[ $orphan_bad -ne 0 ] && fail=1
+
 if [ $fail -eq 0 ]; then echo "STRUCTURE OK"; else echo "STRUCTURE FAIL"; exit 1; fi
