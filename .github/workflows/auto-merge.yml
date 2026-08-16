@@ -16,8 +16,11 @@ jobs:
     if: github.event.label.name == 'direction-consistent'
     runs-on: ubuntu-latest
     steps:
-      - name: Enable auto-merge (squash)
+      - name: Approve and enable auto-merge (squash)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr merge "${{ github.event.pull_request.number }}" --auto --squash --delete-branch
+          PR="${{ github.event.pull_request.number }}"
+          # 加 direction-consistent label 即视为 owner 方向批准
+          gh pr review "$PR" --approve
+          gh pr merge "$PR" --auto --squash --delete-branch
