@@ -26,7 +26,7 @@ jobs:
       - name: Build
         run: lake build
       - name: Style lint (mathlib lint-style)
-        run: python3 scripts/lint-style.py $(find LeanMathematics -name '*.lean')
+        run: find LeanMathematics -name '*.lean' -exec python3 scripts/lint-style.py {} +
       - name: Structure test
         run: bash test/structure.sh
 
