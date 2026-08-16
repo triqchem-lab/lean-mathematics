@@ -1,4 +1,6 @@
 import LeanMathematics.AI.Constitution
+import LeanMathematics.Test.WrongTest
+import LeanMathematics.Test.WrongProof
 import LeanMathematics.Algebra.GF9
 import LeanMathematics.Algebra.GaloisBridge
 import LeanMathematics.Analysis.DiscreteVariation
