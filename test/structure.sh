@@ -54,8 +54,12 @@ imports_bad=0
 for f in $(find "$ROOT" -name '*.lean' 2>/dev/null | sort); do
   if grep -q '^import ' "$f" 2>/dev/null; then
     while IFS= read -r m; do
-      tf="$(echo "$m" | tr '.' '/').lean"
-      [ -f "$tf" ] || { echo "MISSING IMPORT TARGET: $m (from $f)"; imports_bad=1; }
+      case "$m" in
+        LeanMathematics.*)
+          tf="$(echo "$m" | tr '.' '/').lean"
+          [ -f "$tf" ] || { echo "MISSING IMPORT TARGET: $m (from $f)"; imports_bad=1; } ;;
+        *) ;;  # 外部依赖 (Mathlib 等) 由 lake 解析, 不在结构校验内
+      esac
     done < <(grep '^import ' "$f" | sed 's/^import //')
   else
     "$LEAN" "$f" >/dev/null 2>&1 || { echo "PARSE FAIL:  $f"; fail=1; }
