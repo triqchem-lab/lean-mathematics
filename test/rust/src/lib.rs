@@ -25,8 +25,3 @@ fn fixed_sqrt3_within_tight_bound() {
     assert!(diff < 250_000, "fixed √3 off by {}", diff);
 }
 
-/// 反例: 错误测试 — 故意断言 144×46=9999 (应为 6624), 必须被 cargo test 捕获
-#[test]
-fn wrong_anchor() {
-    assert_eq!(144u64 * 46u64, 9999u64);
-}
