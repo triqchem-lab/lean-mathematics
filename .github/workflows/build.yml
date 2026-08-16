@@ -24,17 +24,29 @@ jobs:
   numerical:
     runs-on: ubuntu-latest
     steps:
-      # 数值计算依赖环境: 云端自动下载 math 库, 放在 workspace 同级 sibling
-      - name: Download math library (数值计算依赖)
-        run: git clone --depth 1 https://github.com/triqchem-lab/math.git "${{ github.workspace }}/../math"
+      # 数值计算依赖环境: 云端下载 math 库, 放在 workspace 内并 actions/cache 持久化 (跨 run 复用, 不重复下载)
+      - name: Cache math library (持久化)
+        id: math-cache
+        uses: actions/cache@v4
+        with:
+          path: math
+          key: math-lib
+          restore-keys: math-lib
+      - name: Download/update math library (数值计算依赖)
+        run: |
+          if [ -d math/.git ]; then
+            git -C math pull --depth 1
+          else
+            git clone --depth 1 https://github.com/triqchem-lab/math.git math
+          fi
       - name: C++ numerical verification (AVX-512 虚拟实现, 256 高低位拼接)
         run: |
-          cd "${{ github.workspace }}/../math/cpp"
+          cd math/cpp
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build -j4
           ctest --test-dir build --output-on-failure
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust numerical verification
         run: |
-          cd "${{ github.workspace }}/../math/rust/sov-math"
+          cd math/rust/sov-math
           cargo test
