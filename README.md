@@ -1,9 +1,25 @@
 # LeanMathematics
 
-律算合一（Sovereign Mathematics）的 **Lean 4 形式化库** —— 与 Agda 库
+律算合一（Sovereign Mathematics）的 **Lean 4 交叉验证层** —— 与 Agda 库
 [`discrete-mathematics/src/Sovereign`](https://github.com/triqchem-lab/discrete-mathematics) 双轨互证。
 
 > 一切假设、理论、概念并存。本库不裁决任何物理理论的正误，只把每条理论线**能落链的部分**写成 0-postulate 定理，并严格区分「代数刚性 / 框架解读 / 实验锚定」。
+
+## 定位与分工
+
+| | Agda 库 `discrete-mathematics` | 本库（Lean 4） |
+|---|---|---|
+| 角色 | **离散第一性本体**（唯一权威源） | **交叉验证层** |
+| 内容 | GF(3) 三进制、T⁶ 环面、144/46 缠绕、主权 LCM、0-postulate 全量证明 | 用 mathlib 复证 Agda 结果 |
+| 社区 | 较小 | **较大**（mathlib 生态） |
+| 离散第一性 | **原生支持** | **需开发插件**（Trit 类型 + 离散第一性核心） |
+
+**可直接交叉验证**（mathlib 原生）：ZMod/有限域（GF(3)/GF(9)）、A₄ 群与表示论、
+Frobenius 自同构（`frobenius_add`/`frobenius_mul`）。
+
+**需插件才能对应**（列后续工作，不做朴素重编码）：Trit 三进制本体、T⁶ 环面、
+144/46 缠绕、主权 LCM、重写规则——这些离散第一性结构只在 Agda 原生，Lean 侧
+需先开发插件层。
 
 ## 前置
 
