@@ -1,28 +1,12 @@
 name: Setup Lean toolchain
 description: >-
-  Checkout 仓库 + 安装 Lean 工具链 + mathlib olean 缓存。
-  集中管理 checkout 与 lean-action 的 SHA 固定与 cache 配置, 三处 workflow 共用,
-  升级 action 版本只需改这一处。借鉴 mathlib4 的 .github/actions/ 复合动作实践。
-
-inputs:
-  submodules:
-    description: '传给 actions/checkout 的 submodules 参数 (true | false | recursive)'
-    required: false
-    default: 'false'
-  fetch-depth:
-    description: '传给 actions/checkout 的 fetch-depth 参数'
-    required: false
-    default: '1'
+  安装 Lean 工具链 + mathlib olean 缓存。集中 lean-action 的 SHA 固定与 cache 配置,
+  三处 workflow 共用, 升级 action 版本只需改这一处。
+  须在 actions/checkout 之后调用 (composite action 需仓库已 checkout 才能被 ./ 引用)。
 
 runs:
   using: composite
   steps:
-    - name: Checkout
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      with:
-        submodules: ${{ inputs.submodules }}
-        fetch-depth: ${{ inputs.fetch-depth }}
-
     # 读 lean-toolchain; use-github-cache: false 保持最小权限 (无需 actions token),
     # mathlib olean 走公共 blob 缓存
     - name: Configure Lean
