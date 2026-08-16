@@ -1,0 +1,22 @@
+# pre-commit 框架配置 (借鉴 mathlib4)。
+# 通用卫生 hooks + mathlib lint-style (纯 Python, 无需 Lean)。
+# 本地: `pip install pre-commit && pre-commit install`
+# CI:   pre-commit.yml 兜底, 并可自动 fix 推回 PR 分支。
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: lint-style
+        name: mathlib lint-style
+        entry: python3 scripts/lint-style.py
+        language: system
+        files: '\.lean$'
+        pass_filenames: true

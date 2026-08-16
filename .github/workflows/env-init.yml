@@ -22,17 +22,11 @@ jobs:
   init:
     runs-on: ubuntu-latest
     steps:
-      # checkout 本仓库 + math 子模块 (完整下载)
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # checkout 本仓库 + math 子模块 + Lean 工具链 (SHA/cache 配置集中在 composite action)
+      - uses: ./.github/actions/setup-lean
         with:
           submodules: recursive
-          fetch-depth: 0
-
-      # Lean 工具链 (读 lean-toolchain)
-      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
-        with:
-          use-github-cache: false
-          use-mathlib-cache: true
+          fetch-depth: '0'
 
       # 拉取 mathlib (钉扎 commit) + 预热 olean 缓存
       - name: Fetch mathlib
