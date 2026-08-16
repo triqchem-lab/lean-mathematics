@@ -1,6 +1,6 @@
 name: formal-test
 
-# 形式化库自动化测试: Lean 交叉验证 + 数值验证 (每次 push / PR 自动触发)
+# 形式化库自动化测试: Lean 交叉验证 + 数值验证 (每次 push / PR 自动触发; 阶段2验证)
 on:
   push:
   pull_request:
