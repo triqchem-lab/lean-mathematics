@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 结构测试: Lean 数学库骨架是否镜像 src/Sovereign 的 26 个学术层。
 # 红/绿纪律的红侧 —— 骨架未建时全部 FAIL。
-set -u
+set -u -o pipefail
 ROOT="LeanMathematics"
 LEAN="${LEAN:-lean}"
 fail=0

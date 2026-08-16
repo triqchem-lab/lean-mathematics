@@ -1,0 +1,24 @@
+name: Update Lean Project
+
+# 每周自动 bump mathlib4 (lean-toolchain + lake-manifest.json) 并开 PR 供 review。
+# 借鉴 physlib 的 update.yml — 避免 mathlib 钉扎 commit 长期陈旧。
+on:
+  schedule:
+    - cron: "0 0 * * 0" # 每周日 00:00 UTC
+  workflow_dispatch: # 手动触发
+
+jobs:
+  update_lean:
+    # 开 PR 需要写权限 (push 分支 + 建 PR)
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Update Lean project
+        uses: leanprover-community/lean-update@6618d374c38850c186e7318d678baada849d5638 # main

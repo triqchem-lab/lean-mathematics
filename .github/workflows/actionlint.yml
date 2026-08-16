@@ -1,0 +1,31 @@
+name: Check workflows
+
+# workflow 自身的可靠性闸: actionlint 校验 YAML/用法 + 强制 action 固定到 SHA。
+# 借鉴 mathlib4 的 actionlint.yml — 我们曾踩过 YAML 语法坑 (name 冒号/注释符),
+# 且浮 tag (如 checkout@v4) 底层会随 Node 运行时弃用而漂移。
+on:
+  pull_request:
+    paths:
+      - '.github/**'
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: suggester / actionlint
+        uses: reviewdog/action-actionlint@50842263c20a7c46bd0065b9e624d3c569db061e # v1.73.0
+        with:
+          tool_name: actionlint
+          fail_level: any
+
+  ensure-sha-pinned-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Ensure all actions are pinned to SHA
+        uses: kim-em/github-actions-ensure-sha-pinned-actions@00f51cdb5bbc21f5bc873ef3a2dceef45df213af # improve-error-reporting
