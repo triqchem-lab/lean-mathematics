@@ -1,7 +1,17 @@
 # CI 架构与决策记录
 
 > 本文记录 `lean-mathematics` 的 CI 架构（借鉴 mathlib4 / physlib 实践）与关键决策。
-> 错误定位另见 `docs/CI-DIAGNOSIS.md`。
+> 错误定位另见 `docs/CI-DIAGNOSIS.md`，版本管理见 `docs/VERSIONING.md`。
+
+## 能力一览（这套 CI 能自动完成什么）
+
+1. **证明正确性**：`lake build`（Lean 类型检查器 = 唯一裁判）——定理有洞/证错/类型错即失败。
+2. **数值锚点正确性**：C++ `ctest` + Rust `cargo test` 核对整数锚点（144/46/6624/LCM）与定点 √3。
+3. **结构/风格/API 漂移检测**：`structure.sh`（26 层 + 49 模块 + 孤立 `.lean` 闸）、`lint-style.py`、`decls-diff`（定理名 API diff）。
+4. **workflow 自身可靠性**：`actionlint`（YAML + shellcheck）+ `ensure-sha-pinned-actions`（强制 action SHA 固定）。
+5. **PR 卫生**：标题约定 `check-pr-titles` + 自动修复 `pre-commit`（lite-action 推回）。
+6. **环境自检与预热**：`env-init` / `env-test`（手动或环境文件变更）。
+7. **依赖维护**：`update`（每周日自动 bump mathlib4 并开 PR）。
 
 ## 架构总览（8 workflow + 1 composite action）
 

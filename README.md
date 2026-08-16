@@ -33,8 +33,8 @@ lake update   # 物化依赖
 lake build    # 编译全库
 ```
 
-**本地离线开发**：`lakefile.toml` 默认指向本地已下载的 mathlib4（`../leanprover/mathlib4`）。
-**发布/外部构建**：按 `lakefile.toml` 顶部注释，切换为 `git require`。
+**版本锁定**：工具链（`lean-toolchain`）与依赖（`lake-manifest.json`）精确锁定，升级流程见 [`docs/VERSIONING.md`](docs/VERSIONING.md)。
+**本地离线开发**：如需避免重新下载，可临时把 `lakefile.toml` 的 `git` 依赖改成本地克隆的 `file://` URL（提交前改回）。
 
 ## 结构
 
