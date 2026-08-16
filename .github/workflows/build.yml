@@ -5,7 +5,8 @@ on:
   pull_request:
 
 jobs:
-  build:
+  # 形式化验证 (Lean 交叉验证层)
+  formal:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,3 +19,22 @@ jobs:
         run: python3 scripts/lint-style.py $(find LeanMathematics -name '*.lean')
       - name: Structure test
         run: bash test/structure.sh
+
+  # 数值验证 (math 库: C++23 + Rust — 编译型, 不用 Python 防慢)
+  numerical:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone math library
+        run: git clone --depth 1 https://github.com/triqchem-lab/math.git /tmp/math
+      - name: C++ numerical verification (AVX-512 虚拟实现: 256 高低位拼接)
+        run: |
+          cd /tmp/math/cpp
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j4
+          ctest --test-dir build --output-on-failure
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust numerical verification
+        run: |
+          cd /tmp/math/rust/sov-math
+          cargo test
