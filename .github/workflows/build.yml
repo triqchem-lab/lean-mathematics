@@ -25,16 +25,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Clone math library
-        run: git clone --depth 1 https://github.com/triqchem-lab/math.git /tmp/math
+      - name: Clone math library (sibling of workspace, 云端下载)
+        run: git clone --depth 1 https://github.com/triqchem-lab/math.git "${{ github.workspace }}/../math"
       - name: C++ numerical verification (AVX-512 虚拟实现, 256 高低位拼接)
         run: |
-          cd /tmp/math/cpp
+          cd "${{ github.workspace }}/../math/cpp"
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build -j4
           ctest --test-dir build --output-on-failure
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust numerical verification
         run: |
-          cd /tmp/math/rust/sov-math
+          cd "${{ github.workspace }}/../math/rust/sov-math"
           cargo test
