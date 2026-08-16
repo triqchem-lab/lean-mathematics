@@ -1,0 +1,20 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+      - name: Update dependencies
+        run: lake update
+      - name: Build
+        run: lake build
+      - name: Style lint (mathlib lint-style)
+        run: python3 scripts/lint-style.py $(find LeanMathematics -name '*.lean')
+      - name: Structure test
+        run: bash test/structure.sh
