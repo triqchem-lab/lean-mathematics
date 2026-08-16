@@ -1,0 +1,53 @@
+name: Check PR titles
+
+# PR 标题约定检查 (借鉴 mathlib4 的 check_pr_titles.yaml)。
+# 用 pull_request_target + 只读 title (不 checkout PR 代码, 安全)。
+on:
+  pull_request_target:
+    types: [opened, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write  # 仅用于贴评论
+
+jobs:
+  check:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check title format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -o pipefail
+          echo "PR title: $TITLE"
+          if printf '%s\n' "$TITLE" | grep -Eq '^(feat|fix|doc|style|refactor|test|chore|perf|ci)(\([^)]*\))?: .+'; then
+            echo "标题格式正确"
+            exit 0
+          fi
+          echo "标题不符合约定: 需 <kind>(<scope>): <subject>" >&2
+          exit 1
+
+      - name: Comment on invalid title
+        if: failure()
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: PR Title Check
+          message: |
+            ### ⚠️ PR 标题不符合约定
+            请改为 `<kind>(<scope>): <subject>` 格式：
+
+            - `kind`: `feat` / `fix` / `doc` / `style` / `refactor` / `test` / `chore` / `perf` / `ci`
+            - `scope`（可选）: 改动的模块/目录，如 `Algebra/GF9`、`test`
+            - `subject`: 小写开头、句末无句号、祈使语气
+
+            示例：`feat(Algebra): GF9 无根定理`、`ci: 升级 actions/checkout`
+
+      - name: Comment on valid title
+        if: success()
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: PR Title Check
+          only_update: true
+          message: |
+            ### ✅ PR 标题格式正确

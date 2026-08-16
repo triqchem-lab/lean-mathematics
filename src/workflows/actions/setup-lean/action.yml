@@ -1,0 +1,16 @@
+name: Setup Lean toolchain
+description: >-
+  安装 Lean 工具链 + mathlib olean 缓存。集中 lean-action 的 SHA 固定与 cache 配置,
+  三处 workflow 共用, 升级 action 版本只需改这一处。
+  须在 actions/checkout 之后调用 (composite action 需仓库已 checkout 才能被 ./ 引用)。
+
+runs:
+  using: composite
+  steps:
+    # 读 lean-toolchain; use-github-cache: false 保持最小权限 (无需 actions token),
+    # mathlib olean 走公共 blob 缓存
+    - name: Configure Lean
+      uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
+      with:
+        use-github-cache: false
+        use-mathlib-cache: true

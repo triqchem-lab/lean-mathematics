@@ -1,0 +1,29 @@
+name: Auto-merge on direction approval
+
+# ⚠️ 暂关闭自动合并: 项目尚未达到广泛关注, owner 手动 merge 即可。
+# 保留机制但不自动触发 — 待需要时, 把 `on` 从 workflow_dispatch 改回
+# pull_request_target: types: [labeled] 即可重新开启 label 自动合并。
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR 号 (手动触发 auto-merge)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve and enable auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR="${{ inputs.pr_number }}"
+          # 手动触发时 approve + 开启 auto-merge (仍受分支保护 required checks 约束)
+          gh pr review "$PR" --approve
+          gh pr merge "$PR" --auto --squash --delete-branch

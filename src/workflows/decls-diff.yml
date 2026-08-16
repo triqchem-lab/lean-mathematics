@@ -1,0 +1,53 @@
+name: Declarations diff
+
+# PR 上的声明 API 表面 diff (借鉴 mathlib4 的 decls-diff.yml)。
+# 轻量版: 用 scripts/extract-decls.sh (grep 顶层声明) 对比 base vs head,
+# 有变化时贴 PR 评论。随库成长可升级为 Lean import-graph 精确版。
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write  # 贴评论
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # 需要 base commit
+
+      - name: Extract declarations (head)
+        run: bash scripts/extract-decls.sh > /tmp/head.txt
+
+      - name: Extract declarations (base)
+        run: |
+          # 用 head 的脚本提取 base 的源文件 (base 可能尚无本脚本)
+          git checkout "${{ github.event.pull_request.base.sha }}" -- LeanMathematics
+          bash scripts/extract-decls.sh > /tmp/base.txt
+          git checkout "${{ github.event.pull_request.head.sha }}" -- LeanMathematics
+
+      - name: Compute diff
+        id: diff
+        run: |
+          set -o pipefail
+          if diff -u /tmp/base.txt /tmp/head.txt > /tmp/decls.diff 2>&1; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "### 声明 API diff (base → head)" >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/decls.diff >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment API diff
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "### 📐 声明 API 变化 (decls-diff)"
+            echo '```diff'
+            cat /tmp/decls.diff
+            echo '```'
+          } | gh pr comment "${{ github.event.pull_request.number }}" --body-file -

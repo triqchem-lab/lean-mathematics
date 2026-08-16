@@ -1,0 +1,21 @@
+name: PR body declaration check
+
+# 校验 PR 描述中的方向一致性声明是否全部勾选 (5 项)。
+# 声明未勾选的 PR 无法合并 (作为 required check)。
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  declaration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: 校验 PR body 声明
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: bash scripts/pr-body-check.sh
