@@ -1,6 +1,6 @@
 name: formal-test
 
-# 形式化库自动化测试: Lean 交叉验证 + math 库数值验证 (每次 push / PR 自动触发)
+# 形式化库自动化测试: Lean 交叉验证 + 数值验证 (每次 push / PR 自动触发)
 on:
   push:
   pull_request:
@@ -21,33 +21,22 @@ jobs:
       - name: Structure test
         run: bash test/structure.sh
 
-  # 数值验证 (math 库: C++23 + Rust — 编译型, 不用 Python 防慢)
+  # 数值验证 (用户测试用例, 链接 math 子模块 — 只读依赖)
   numerical:
     runs-on: ubuntu-latest
     steps:
-      # math 库缓存 (env-init 预热后命中恢复, 跨 run 复用不重复下载)
-      - name: Cache math library
-        id: math-cache
-        uses: actions/cache@v4
+      # checkout 本仓库 + math 子模块 (子模块只读, 测试用例在本仓库 test/)
+      - uses: actions/checkout@v4
         with:
-          path: math
-          key: math-lib
-          restore-keys: math-lib
-      - name: Download/update math library
+          submodules: recursive
+      - name: C++ numerical verification (test/cpp, 链接 math 子模块)
         run: |
-          if [ -d math/.git ]; then
-            git -C math pull --depth 1
-          else
-            git clone --depth 1 https://github.com/triqchem-lab/math.git math
-          fi
-      - name: C++ numerical verification (AVX-512 虚拟实现, 256 高低位拼接)
-        run: |
-          cd math/cpp
+          cd test/cpp
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build -j4
           ctest --test-dir build --output-on-failure
       - uses: dtolnay/rust-toolchain@stable
-      - name: Rust numerical verification
+      - name: Rust numerical verification (test/rust)
         run: |
-          cd math/rust/sov-math
+          cd test/rust
           cargo test

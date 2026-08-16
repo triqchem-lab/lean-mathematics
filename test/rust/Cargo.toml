@@ -1,0 +1,8 @@
+[package]
+name = "user-tests"
+version = "0.1.0"
+edition = "2021"
+
+# 数值测试样例用纯 std (整数精确, 符合宪法禁浮点)。
+# 需高精度大整数对比时, 用户可加: malachite = "0.4" (纯 Rust 零 C 依赖)。
+[dependencies]
