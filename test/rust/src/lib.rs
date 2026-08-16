@@ -24,4 +24,3 @@ fn fixed_sqrt3_within_tight_bound() {
     let diff = (num * num - 3 * den * den).abs();
     assert!(diff < 250_000, "fixed √3 off by {}", diff);
 }
-
