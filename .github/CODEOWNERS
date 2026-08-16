@@ -1,0 +1,15 @@
+# 代码所有权: 离散第一性本体层必须 owner 批准, 其余默认 owner。
+# 说明: 本库是 GF(3) 三进制离散第一性形式化库, 核心层方向敏感,
+# 任何改动核心公理/本体的 PR 必须 @clearnature review 通过。
+
+# 核心离散第一性本体层 (GF(3) 公理 / T⁶ 环面 / 144-46 缠绕 / 主权 LCM)
+LeanMathematics/Base/          @clearnature
+LeanMathematics/Structology/   @clearnature
+LeanMathematics/Algebra/       @clearnature
+LeanMathematics/Coupling/      @clearnature
+LeanMathematics/HoTT/          @clearnature
+LeanMathematics/Physics/       @clearnature
+LeanMathematics/Constitution/  @clearnature
+
+# 其余 (工程/文档/测试/工作流) 默认 owner
+*                              @clearnature

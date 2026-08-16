@@ -1,0 +1,23 @@
+name: Direction check
+
+# 方向一致性门禁: GF(3) 离散第一性 + 0-postulate + 禁浮点。
+# 硬违反 (postulate/axiom/sorry/admit/浮点) 直接失败; 核心层改动提示须 owner review。
+# 作为 required status check, 方向不一致的 PR 无法合并。
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  direction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: GF(3) 方向一致性检查
+        run: |
+          set -o pipefail
+          bash scripts/direction-check.sh "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
