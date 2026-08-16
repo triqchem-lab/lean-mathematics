@@ -1,0 +1,51 @@
+name: env-init
+
+# 环境初始化: 安装工具链 + 拉取依赖 + 预热缓存 (手动触发, 或环境文件变更时触发)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'lean-toolchain'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Lean 工具链 (读 lean-toolchain)
+      - uses: leanprover/lean-action@v1
+
+      # 拉取 mathlib (钉扎 commit) + 预热 olean 缓存
+      - name: Fetch mathlib
+        run: lake update
+
+      # math 库缓存 (与 formal-test 共享同一 key, 预热后 formal-test 命中恢复)
+      - name: Cache math library
+        id: math-cache
+        uses: actions/cache@v4
+        with:
+          path: math
+          key: math-lib
+          restore-keys: math-lib
+
+      - name: Download math library
+        run: |
+          if [ -d math/.git ]; then
+            git -C math pull --depth 1
+          else
+            git clone --depth 1 https://github.com/triqchem-lab/math.git math
+          fi
+
+      # Rust 工具链
+      - uses: dtolnay/rust-toolchain@stable
+
+      # 环境自检
+      - name: Verify environment
+        run: |
+          lean --version
+          rustc --version
+          gcc --version
+          cmake --version

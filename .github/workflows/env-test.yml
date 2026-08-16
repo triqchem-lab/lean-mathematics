@@ -1,0 +1,39 @@
+name: env-test
+
+# 环境测试: 验证工具链版本 + Mathlib 导入冒烟 (手动触发, 或环境文件变更时触发)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'lean-toolchain'
+      - 'lakefile.toml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: leanprover/lean-action@v1
+
+      - name: Update dependencies
+        run: lake update
+
+      # 冒烟: Mathlib 能否正常导入 (走缓存 olean)
+      - name: Smoke test Mathlib import
+        run: |
+          printf 'import Mathlib\n#check frobenius\n#check ZMod 3\n' > /tmp/smoke.lean
+          lake env lean /tmp/smoke.lean
+
+      # Rust 工具链冒烟
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Smoke test Rust
+        run: rustc --version && cargo --version
+
+      # 环境版本清单
+      - name: Environment versions
+        run: |
+          lean --version
+          rustc --version
+          gcc --version
+          cmake --version

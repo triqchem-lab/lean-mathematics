@@ -1,5 +1,6 @@
-name: build
+name: formal-test
 
+# 形式化库自动化测试: Lean 交叉验证 + math 库数值验证 (每次 push / PR 自动触发)
 on:
   push:
   pull_request:
@@ -24,15 +25,15 @@ jobs:
   numerical:
     runs-on: ubuntu-latest
     steps:
-      # 数值计算依赖环境: 云端下载 math 库, 放在 workspace 内并 actions/cache 持久化 (跨 run 复用, 不重复下载)
-      - name: Cache math library (持久化)
+      # math 库缓存 (env-init 预热后命中恢复, 跨 run 复用不重复下载)
+      - name: Cache math library
         id: math-cache
         uses: actions/cache@v4
         with:
           path: math
           key: math-lib
           restore-keys: math-lib
-      - name: Download/update math library (数值计算依赖)
+      - name: Download/update math library
         run: |
           if [ -d math/.git ]; then
             git -C math pull --depth 1
