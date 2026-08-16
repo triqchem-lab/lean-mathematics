@@ -13,10 +13,11 @@ jobs:
   init:
     runs-on: ubuntu-latest
     steps:
-      # checkout 本仓库 + math 子模块
+      # checkout 本仓库 + math 子模块 (完整下载)
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
       # Lean 工具链 (读 lean-toolchain)
       - uses: leanprover/lean-action@v1

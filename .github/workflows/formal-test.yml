@@ -25,10 +25,11 @@ jobs:
   numerical:
     runs-on: ubuntu-latest
     steps:
-      # checkout 本仓库 + math 子模块 (子模块只读, 测试用例在本仓库 test/)
+      # checkout 本仓库 + math 子模块 (完整下载, 子模块只读, 测试用例在本仓库 test/)
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
       - name: C++ numerical verification (test/cpp, 链接 math 子模块)
         run: |
           cd test/cpp
