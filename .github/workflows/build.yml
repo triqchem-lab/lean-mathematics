@@ -24,8 +24,8 @@ jobs:
   numerical:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Clone math library (sibling of workspace, 云端下载)
+      # 数值计算依赖环境: 云端自动下载 math 库, 放在 workspace 同级 sibling
+      - name: Download math library (数值计算依赖)
         run: git clone --depth 1 https://github.com/triqchem-lab/math.git "${{ github.workspace }}/../math"
       - name: C++ numerical verification (AVX-512 虚拟实现, 256 高低位拼接)
         run: |
